@@ -2,6 +2,7 @@ import os
 import discord
 from discord import app_commands
 from discord.ext import commands
+import asyncio
 
 intents = discord.Intents.default()
 intents.message_content = True
@@ -39,6 +40,7 @@ async def remove_empty_color_roles(guild: discord.Guild):
                     print(f'Deleted unused color role: {role.name}')
                 except discord.HTTPException as e:
                     print(f'Failed to delete role {role.name}: {e}')
+                await asyncio.sleep(1)  # Add a delay to prevent hitting rate limits
 
 # スラッシュコマンドの定義
 @bot.tree.command(name="color", description="指定した色の名前でロールを作成し、自分に付与します。")
@@ -84,7 +86,8 @@ async def color(interaction: discord.Interaction, color: str):
 
         # 既存の色ロールを削除
         color_roles = [r for r in member.roles if r.name.startswith('#') and r != role]
-        await member.remove_roles(*color_roles)
+        if color_roles:
+            await member.remove_roles(*color_roles)
 
         # 作成したロールをユーザーに付与
         await member.add_roles(role)
