@@ -52,6 +52,9 @@ async def color(interaction: discord.Interaction, color: str):
     member = interaction.user
 
     try:
+        # `#`が含まれている場合は削除
+        color = color.lstrip('#')
+
         # カラーコードを16進数から整数に変換
         color_value = int(color, 16)
         color_obj = discord.Color(color_value)
