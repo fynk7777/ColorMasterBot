@@ -27,20 +27,19 @@ async def on_ready():
 async def on_member_update(before: discord.Member, after: discord.Member):
     # ロールが変更された場合にのみ処理を行う
     if before.roles != after.roles:
-        guild = after.guild
-        await remove_empty_color_roles(guild)
+        # 不要な色ロールを削除
+        await remove_empty_color_roles(after.guild)
 
 # 誰も居ない色ロールを削除
 async def remove_empty_color_roles(guild: discord.Guild):
     for role in guild.roles:
-        if role.name.startswith('#'):
-            if len(role.members) == 0:
-                try:
-                    await role.delete(reason="Unused color role cleanup")
-                    print(f'Deleted unused color role: {role.name}')
-                except discord.HTTPException as e:
-                    print(f'Failed to delete role {role.name}: {e}')
-                await asyncio.sleep(1)  # Add a delay to prevent hitting rate limits
+        if role.name.startswith('#') and len(role.members) == 0:
+            try:
+                await role.delete(reason="Unused color role cleanup")
+                print(f'Deleted unused color role: {role.name}')
+            except discord.HTTPException as e:
+                print(f'Failed to delete role {role.name}: {e}')
+            await asyncio.sleep(1)  # Add a delay to prevent hitting rate limits
 
 # スラッシュコマンドの定義
 @bot.tree.command(name="color", description="指定した色の名前でロールを作成し、自分に付与します。空白を送ると現在の色を削除します。")
@@ -60,6 +59,9 @@ async def color(interaction: discord.Interaction, color: str = None):
                 await interaction.followup.send('現在の色ロールが削除されました。', ephemeral=True)
             else:
                 await interaction.followup.send('削除する色ロールがありません。', ephemeral=True)
+
+            # 不要な色ロールを削除
+            await remove_empty_color_roles(guild)
             return
 
         # `#`が含まれている場合は削除
