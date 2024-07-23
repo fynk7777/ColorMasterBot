@@ -6,6 +6,7 @@ from discord.ext import commands
 intents = discord.Intents.default()
 intents.message_content = True
 intents.guilds = True
+intents.members = True  # メンバーの更新を監視するために必要
 
 # Botの準備
 bot = commands.Bot(command_prefix='!', intents=intents)
@@ -20,10 +21,31 @@ async def on_ready():
     except Exception as e:
         print(f"Error syncing commands: {e}")
 
+# メンバーの更新を監視
+@bot.event
+async def on_member_update(before: discord.Member, after: discord.Member):
+    # ロールが変更された場合にのみ処理を行う
+    if before.roles != after.roles:
+        guild = after.guild
+        await remove_empty_color_roles(guild)
+
+# 誰も居ない色ロールを削除
+async def remove_empty_color_roles(guild: discord.Guild):
+    for role in guild.roles:
+        if role.name.startswith('#'):
+            if len(role.members) == 0:
+                try:
+                    await role.delete(reason="Unused color role cleanup")
+                    print(f'Deleted unused color role: {role.name}')
+                except discord.HTTPException as e:
+                    print(f'Failed to delete role {role.name}: {e}')
+
 # スラッシュコマンドの定義
 @bot.tree.command(name="color", description="指定した色の名前でロールを作成し、自分に付与します。")
 @app_commands.describe(color="ロールの色（16進数）")
 async def color(interaction: discord.Interaction, color: str):
+    await interaction.response.defer(ephemeral=True)  # Defer the response
+
     guild = interaction.guild
     member = interaction.user
 
@@ -39,19 +61,30 @@ async def color(interaction: discord.Interaction, color: str):
             # 同名のロールがない場合は作成
             role = await guild.create_role(name=f'#{color}', color=color_obj)
 
-            # ボットの最上位ロールの位置を取得
+            # ボットのロールの位置を取得
             bot_member = guild.get_member(bot.user.id)
             if bot_member:
                 bot_top_role = bot_member.top_role
                 bot_top_role_position = bot_top_role.position
             else:
-                bot_top_role_position = None  # デフォルトの位置
+                bot_top_role_position = None
 
-            # 新しいロールの位置をボットのロールの1つ下に設定
+            # ロールをボットの1つ下に移動
             if bot_top_role_position is not None:
-                new_position = bot_top_role_position - 1
-                if new_position >= 0:
-                    await role.edit(position=new_position)
+                # サーバー内のすべてのロールを取得
+                roles = guild.roles
+                role_positions = {role: role.position for role in roles}
+
+                # 作成したロールの位置をボットのロールの1つ下に設定
+                role_positions[role] = bot_top_role_position - 1
+
+                # ロールの位置を更新
+                sorted_roles = sorted(role_positions.items(), key=lambda x: x[1], reverse=True)
+                await guild.edit_role_positions(positions={r: p for r, p in sorted_roles})
+
+        # 既存の色ロールを削除
+        color_roles = [r for r in member.roles if r.name.startswith('#') and r != role]
+        await member.remove_roles(*color_roles)
 
         # 作成したロールをユーザーに付与
         await member.add_roles(role)
@@ -59,9 +92,9 @@ async def color(interaction: discord.Interaction, color: str):
         # メッセージでロールとユーザーのIDを表示
         role_mention = f'<@&{role.id}>'
         user_mention = f'<@{member.id}>'
-        await interaction.response.send_message(f'ロール {role_mention} が {user_mention} に付与されました。', ephemeral=True)
+        await interaction.followup.send(f'ロール {role_mention} が {user_mention} に付与されました。', ephemeral=True)
     except Exception as e:
-        await interaction.response.send_message(f'ロールの作成または付与に失敗しました: {e}', ephemeral=True)
+        await interaction.followup.send(f'ロールの作成または付与に失敗しました: {e}', ephemeral=True)
 
 # 環境変数からトークンを取得してBotを起動
 bot.run(os.getenv("DISCORD_TOKEN"))
