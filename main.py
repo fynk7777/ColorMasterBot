@@ -43,15 +43,25 @@ async def remove_empty_color_roles(guild: discord.Guild):
                 await asyncio.sleep(1)  # Add a delay to prevent hitting rate limits
 
 # スラッシュコマンドの定義
-@bot.tree.command(name="color", description="指定した色の名前でロールを作成し、自分に付与します。")
+@bot.tree.command(name="color", description="指定した色の名前でロールを作成し、自分に付与します。空白を送ると現在の色を削除します。")
 @app_commands.describe(color="ロールの色（16進数）")
-async def color(interaction: discord.Interaction, color: str):
+async def color(interaction: discord.Interaction, color: str = None):
     await interaction.response.defer(ephemeral=True)  # Defer the response
 
     guild = interaction.guild
     member = interaction.user
 
     try:
+        if color is None or not color.strip():
+            # 空白が送られた場合は現在の色ロールを削除
+            color_roles = [r for r in member.roles if r.name.startswith('#')]
+            if color_roles:
+                await member.remove_roles(*color_roles)
+                await interaction.followup.send('現在の色ロールが削除されました。', ephemeral=True)
+            else:
+                await interaction.followup.send('削除する色ロールがありません。', ephemeral=True)
+            return
+
         # `#`が含まれている場合は削除
         color = color.lstrip('#')
 
