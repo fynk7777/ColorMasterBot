@@ -6,7 +6,5 @@ https://discord.com/oauth2/authorize?client_id=1265253957073240195&permissions=2
 # BOTの設定  
 こちらのBOTを入れたら、できるだけ権限を上にしてください。
 
+
   
-
-Uploading ColorMasterBot使い方.mp4…
-
