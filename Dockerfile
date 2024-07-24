@@ -1,17 +1,18 @@
 # ベースイメージを指定
-FROM python:3.11-slim
+FROM python:3.9-slim
 
 # 作業ディレクトリを設定
 WORKDIR /app
 
-# requirements.txtをコンテナにコピー
+# 必要なファイルをコピー
+COPY main.py .
+COPY keep_alive.py .
 COPY requirements.txt .
 
-# パッケージをインストール
+# Pythonパッケージをインストール
 RUN pip install --no-cache-dir -r requirements.txt
 
-# アプリケーションコードをコンテナにコピー
 COPY . .
 
-# アプリケーションを起動
+# コンテナを起動し、ボットを実行
 CMD ["python", "main.py"]
