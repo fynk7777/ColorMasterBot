@@ -4,6 +4,8 @@ from discord import app_commands
 from discord.ext import commands
 import asyncio
 
+TOKEN = os.getenv("DISCORD_TOKEN")
+
 intents = discord.Intents.default()
 intents.message_content = True
 intents.guilds = True
@@ -114,5 +116,8 @@ async def color(interaction: discord.Interaction, color: str = None):
     except Exception as e:
         await interaction.followup.send(f'ロールの作成または付与に失敗しました: {e}', ephemeral=True)
 
-# 環境変数からトークンを取得してBotを起動
-bot.run(os.getenv("DISCORD_TOKEN"))
+try:
+    keep_alive()
+    bot.run(TOKEN)
+except Exception as e:
+    print(f'エラーが発生しました: {e}')
