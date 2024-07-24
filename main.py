@@ -46,8 +46,8 @@ async def remove_empty_color_roles(guild: discord.Guild):
             await asyncio.sleep(1)  # Add a delay to prevent hitting rate limits
 
 # スラッシュコマンドの定義
-@bot.tree.command(name="color", description="指定した色の名前でロールを作成し、自分に付与します。空白を送ると現在の色を削除します。")
-@app_commands.describe(color="ロールの色（16進数）")
+@bot.tree.command(name="color", description="指定した色のロールを自分に付与します。colorを選択しなかった場合、自分の色のロールを削除できます")
+@app_commands.describe(color="ロールの色（RGB）")
 async def color(interaction: discord.Interaction, color: str = None):
     await interaction.response.defer(ephemeral=True)  # Defer the response
 
