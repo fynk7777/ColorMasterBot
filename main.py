@@ -290,12 +290,6 @@ async def rgb_command(interaction: discord.Interaction):
     )
 
     embed.add_field(
-        name="黒",
-        value="`#000000`",
-        inline=False
-    )
-
-    embed.add_field(
         name="白",
         value="`#FFFFFF`",
         inline=False
