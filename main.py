@@ -51,7 +51,7 @@ class ColorGroup(app_commands.Group):
         super().__init__(name="color", description="色ロールを変更または削除します。")
 
     @app_commands.command(name="change", description="指定した色のロールを自分に付与します。")
-    @app_commands.describe(color="ロールの色（RGB）")
+    @app_commands.describe(color="ロールの色（HEX）")
     async def change(self, interaction: discord.Interaction, color: str):
         await interaction.response.defer(ephemeral=True)
 
@@ -131,10 +131,10 @@ async def help_command(interaction: discord.Interaction):
     )
 
     embed.add_field(
-        name="/color change <RGB>",
+        name="/color change <HEX>",
         value=(
-            "指定したRGBカラーのロールを自分に付与します。\n"
-            "**RGB**: 色コードを指定します（例: `FF5733`）。"
+            "指定したHEXカラーのロールを自分に付与します。\n"
+            "**HEX**: 色コードを指定します（例: `FF5733`）。"
         ),
         inline=False
     )
@@ -148,23 +148,23 @@ async def help_command(interaction: discord.Interaction):
     )
 
     embed.add_field(
-        name="/rgb",
+        name="/HEX",
         value=(
-            "RGBカラーの例を表示します。"
+            "HEXカラーの例を表示します。"
         ),
         inline=False
     )
 
-    embed.set_footer(text="RGBコードは16進数の形式で指定してください。")
+    embed.set_footer(text="HEXコードは16進数の形式で指定してください。")
 
     await interaction.response.send_message(embed=embed, ephemeral=True)
 
-# /rgbコマンドの定義
-@bot.tree.command(name="rgb", description="RGBカラーの例を表示します。")
-async def rgb_command(interaction: discord.Interaction):
+# /hexコマンドの定義
+@bot.tree.command(name="hex", description="HEXカラーの例を表示します。")
+async def hex_command(interaction: discord.Interaction):
     embed = discord.Embed(
-        title="RGBカラーの例",
-        description="以下はRGBカラーの例です。カラーコードは対応する色で表示されています。",
+        title="HEXカラーの例",
+        description="以下はHEXカラーの例です。カラーコードは対応する色で表示されています。",
         color=discord.Color.blue()
     )
 
