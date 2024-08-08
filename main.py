@@ -83,7 +83,7 @@ class ColorGroup(app_commands.Group):
                     roles = guild.roles
                     role_positions = {role: role.position for role in roles}
 
-                    role_positions[role] = bot_top_role_position - 1　+ 1
+                    role_positions[role] = bot_top_role_position - 1
 
                     sorted_roles = sorted(role_positions.items(), key=lambda x: x[1], reverse=True)
                     await guild.edit_role_positions(positions={r: p for r, p in sorted_roles})
