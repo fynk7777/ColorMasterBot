@@ -299,6 +299,12 @@ async def hex_command(interaction: discord.Interaction):
 
     await interaction.response.send_message(embed=embed, ephemeral=True)
 
+@bot.event
+async def on_message(message):
+    
+        # 「r!test」が送信された場合に「あ」と返す
+    if message.content == "r!test":
+        await message.channel.send("GitHubで起動されています")
 
 try:
     keep_alive()
