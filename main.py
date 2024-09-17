@@ -303,7 +303,7 @@ async def hex_command(interaction: discord.Interaction):
 async def on_message(message):
     
         # 「r!test」が送信された場合に「あ」と返す
-    if message.content == "r!test":
+    if message.content == "b!test" or message.content == "c!test":
         await message.channel.send("GitHubで起動されています")
 
 try:
